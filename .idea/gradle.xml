@@ -7,8 +7,8 @@
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
-            <option value="C:\Users\Ryan\AndroidStudioProjects\FourCast" />
-            <option value="C:\Users\Ryan\AndroidStudioProjects\FourCast\Four Cast" />
+            <option value="C:\Users\Ryan\Development\FourCastWeatherApp" />
+            <option value="C:\Users\Ryan\Development\FourCastWeatherApp\Four Cast" />
           </set>
         </option>
       </GradleProjectSettings>

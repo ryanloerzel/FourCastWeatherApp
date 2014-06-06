@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Four Cast/Four Cast.iml" filepath="$PROJECT_DIR$/Four Cast/Four Cast.iml" />
       <module fileurl="file://$PROJECT_DIR$/FourCast.iml" filepath="$PROJECT_DIR$/FourCast.iml" />
+      <module fileurl="file://$PROJECT_DIR$/FourCastWeatherApp.iml" filepath="$PROJECT_DIR$/FourCastWeatherApp.iml" />
     </modules>
   </component>
 </project>
