@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Four Cast/Four Cast.iml" filepath="$PROJECT_DIR$/Four Cast/Four Cast.iml" />
+      <module fileurl="file://$PROJECT_DIR$/FourCast.iml" filepath="$PROJECT_DIR$/FourCast.iml" />
+    </modules>
+  </component>
+</project>
+
