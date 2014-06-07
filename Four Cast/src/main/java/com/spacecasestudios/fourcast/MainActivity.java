@@ -1,68 +1,59 @@
 package com.spacecasestudios.fourcast;
 
 import android.content.Context;
-import android.content.Intent;
+import android.location.Address;
 import android.location.Criteria;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
-import android.provider.Settings;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONArray;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity {
 
-   private TextView mWeatherLabel;
-   public static final int NUMBER_OF_LOCATIONS = 4;
+   protected JSONObject mWeatherData;
+   protected String mWeatherSummary;
+   protected String mLocality;
+   protected int mTemperature;
+   private float mLat, mLng;
    public static final String TAG = MainActivity.class.getSimpleName();
    private LocationManager locationManager;
    private String provider;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mWeatherLabel = (TextView) findViewById(R.id.textView3);
+        setLatAndLng();
+        setLocality();
 
-        // Get the location manager
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        // Define the criteria how to select the location provider -> use
-        // default
-        Criteria criteria = new Criteria();
-        provider = locationManager.getBestProvider(criteria, false);
-        Location location = locationManager.getLastKnownLocation(provider);
-
-        if (location != null) {
-            System.out.println("Provider " + provider + " has been selected.");
-            int lat = (int) (location.getLatitude());
-            int lng = (int) (location.getLongitude());
-            System.out.println("Latitude: " + lat + " Longitude: " + lng);
-        }
-        else{
-            System.out.println("Location not provided");
-        }
-
+        //Get the weather data in an Async Task by connecting to the forecast api
         if(isNetworkAvailable()){
             GetWeatherData getWeatherData = new GetWeatherData();
             getWeatherData.execute();
@@ -71,6 +62,48 @@ public class MainActivity extends ActionBarActivity {
             Toast.makeText(this, "Network is unavailable", Toast.LENGTH_LONG).show();
         }
 
+    }
+
+    private void setLocality() {
+        //Retrieve the current Locality (City) / hard code if location is unavailable
+        Geocoder gcd = new Geocoder(this);
+        List<Address> addresses = null;
+        try {
+            addresses = gcd.getFromLocation(mLat, mLng, 1);
+        } catch (IOException e) {
+            Log.e(TAG, "Exception caught:", e);
+        }
+        if (addresses.size() > 0) {
+            mLocality = addresses.get(0).getLocality();
+            Log.i(TAG, "The City is: " + mLocality);
+        }
+        else {
+            mLocality = "Somewhere out there";
+            Log.i(TAG, "The City is: " + mLocality);
+        }
+    }
+
+    private void setLatAndLng() {
+        // Location manager retrieves the current Latitude and Longitude
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        // Define the criteria how to select the location provider -> use default
+        Criteria criteria = new Criteria();
+        provider = locationManager.getBestProvider(criteria, false);
+        Location location = locationManager.getLastKnownLocation(provider);
+
+        //if the location is available set the mLat and mLng otherwise hard code the values
+        if (location != null) {
+            mLat =  (float)(location.getLatitude());
+            mLng = (float)(location.getLongitude());
+            Log.i(TAG, "The mLat: " + mLat + " and the ln is: " + mLng);
+        }
+        else{
+            Toast.makeText(this, "Current Location is unavailable", Toast.LENGTH_LONG).show();
+            //Ulaanbaatar Mongolia
+            mLat = 47.9200f;
+            mLng = 106.9200f;
+            Log.i(TAG, "The mLat: " + mLat + " and the ln is: " + mLng);
+        }
     }
 
     private boolean isNetworkAvailable() {
@@ -85,6 +118,24 @@ public class MainActivity extends ActionBarActivity {
 
         return isAvailable;
     }
+
+    private void updateData() {
+        if(mWeatherData == null){
+            /* TODO: Handle Error */
+            Log.i("In Update Data", "We have some null data " + mWeatherSummary);
+        }
+        else{
+            try {
+                JSONObject jsonCurrentWeather = mWeatherData.getJSONObject("currently");
+                mWeatherSummary = jsonCurrentWeather.getString("summary");
+                mTemperature = jsonCurrentWeather.getInt("temperature");
+                Log.i("In Update Data", "The weather is: " + mWeatherSummary + " and the temperature is " + mTemperature);
+            } catch (JSONException e) {
+                Log.e(TAG, "Exception caught!", e);
+            }
+        }
+    }
+
 
 
     @Override
@@ -107,70 +158,52 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private class GetWeatherData extends AsyncTask<Object, Void, String> {
+    private class GetWeatherData extends AsyncTask<Object, Void, JSONObject> {
 
-        @Override
-        protected String doInBackground(Object... objects) {
+        protected JSONObject doInBackground(Object... params) {
             int responseCode = -1;
+            String url = "https://api.forecast.io/forecast/48ab6b9045bb8c5558c38a43d0e337c0/" + Float.toString(mLat)+ "," + Float.toString(mLng);
+            JSONObject jsonResponse = null;
+            StringBuilder builder = new StringBuilder();
+            HttpClient client = new DefaultHttpClient();
+            HttpGet httpget = new HttpGet(url);
 
-            //Attempt a connection with the weather data URL
             try {
-                URL weatherFeedUrl = new URL("https://api.forecast.io/forecast/48ab6b9045bb8c5558c38a43d0e337c0/40.5833,-122.3667");
-                HttpURLConnection connection = (HttpURLConnection) weatherFeedUrl.openConnection();
-                connection.connect();
-                responseCode = connection.getResponseCode();
+                HttpResponse response = client.execute(httpget);
+                StatusLine statusLine = response.getStatusLine();
+                responseCode = statusLine.getStatusCode();
 
-                if(responseCode == HttpURLConnection.HTTP_OK){
-                    InputStream inputStream = connection.getInputStream();
-                    Reader reader = new InputStreamReader(inputStream);
-
-                    //ERROR WHEN REQUESTING CONTENT LENGTH: -1 RETURNED*********************
-//                    int contentLength = connection.getContentLength();
-//                    if(contentLength == -1) {
-//                        //contentLength = connection.getHeaderFieldInt("Length", -1);
-//                        contentLength = 2000;
-//                    }
-//                    Log.v(TAG, Integer.toString(contentLength));
-//                    char[] charArray = new char[contentLength];
-//                    reader.read(charArray);
-//                    String responseData = new String(charArray);
-                    //************************************************************************
-
-                    //THIS fix was written by Hubert Maraszek*********************************
-                    int nextCharacter; // read() returns an int, we cast it to char later
-                    String responseData = "";
-                    while(true){ // Infinite loop, can only be stopped by a "break" statement
-                        nextCharacter = reader.read(); // read() without parameters returns one character
-                        if(nextCharacter == -1) // A return value of -1 means that we reached the end
-                            break;
-                        responseData += (char) nextCharacter; // The += operator appends the character to the end of the string
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    HttpEntity entity = response.getEntity();
+                    InputStream content = entity.getContent();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(content));
+                    String line;
+                    while((line = reader.readLine()) != null){
+                        builder.append(line);
                     }
-                    //************************************************************************
-                    JSONObject jsonResponse = new JSONObject(responseData);
-                    JSONObject jsonCurrentWeather = jsonResponse.getJSONObject("currently");
-                    String currentWeather = jsonCurrentWeather.getString("summary");
-                    mWeatherLabel.setText(currentWeather);
-                    //Log.i(TAG, currentWeather);
 
+                    jsonResponse = new JSONObject(builder.toString());
                 }
                 else {
-                    Log.i(TAG, "Unsuccessful Http Response Code: " + responseCode);
+                    Log.i(TAG, String.format("Unsuccessful HTTP response code: %d", responseCode));
                 }
-
             }
-            catch (MalformedURLException e) {
+            catch (JSONException e) {
                 Log.e(TAG, "Exception caught:", e);
             }
-            catch (IOException e){
-                Log.e(TAG, "Exception caught:", e);
-            }
-            catch (Exception e){
+            catch (Exception e) {
                 Log.e(TAG, "Exception caught:", e);
             }
 
-            return "Code :" + responseCode;
+            return jsonResponse;
+        }
+
+        @Override
+        protected void onPostExecute(JSONObject result){
+            mWeatherData = result;
+            updateData();
         }
     }
 
-
 }
+
