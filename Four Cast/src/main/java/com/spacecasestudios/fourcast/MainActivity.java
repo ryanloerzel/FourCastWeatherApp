@@ -1,9 +1,14 @@
 package com.spacecasestudios.fourcast;
 
 import android.content.Context;
+import android.content.Intent;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.provider.Settings;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,6 +17,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,16 +33,35 @@ import java.net.URL;
 public class MainActivity extends ActionBarActivity {
 
    private TextView mWeatherLabel;
-   protected String[] mWeatherData;
    public static final int NUMBER_OF_LOCATIONS = 4;
    public static final String TAG = MainActivity.class.getSimpleName();
+   private LocationManager locationManager;
+   private String provider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mWeatherLabel = (TextView) findViewById(R.id.textWeatherValue);
+        mWeatherLabel = (TextView) findViewById(R.id.textView3);
+
+        // Get the location manager
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        // Define the criteria how to select the location provider -> use
+        // default
+        Criteria criteria = new Criteria();
+        provider = locationManager.getBestProvider(criteria, false);
+        Location location = locationManager.getLastKnownLocation(provider);
+
+        if (location != null) {
+            System.out.println("Provider " + provider + " has been selected.");
+            int lat = (int) (location.getLatitude());
+            int lng = (int) (location.getLongitude());
+            System.out.println("Latitude: " + lat + " Longitude: " + lng);
+        }
+        else{
+            System.out.println("Location not provided");
+        }
 
         if(isNetworkAvailable()){
             GetWeatherData getWeatherData = new GetWeatherData();
@@ -88,7 +115,7 @@ public class MainActivity extends ActionBarActivity {
 
             //Attempt a connection with the weather data URL
             try {
-                URL weatherFeedUrl = new URL("https://api.forecast.io/forecast/48ab6b9045bb8c5558c38a43d0e337c0/37.8267,-122.423");
+                URL weatherFeedUrl = new URL("https://api.forecast.io/forecast/48ab6b9045bb8c5558c38a43d0e337c0/40.5833,-122.3667");
                 HttpURLConnection connection = (HttpURLConnection) weatherFeedUrl.openConnection();
                 connection.connect();
                 responseCode = connection.getResponseCode();
@@ -119,7 +146,12 @@ public class MainActivity extends ActionBarActivity {
                         responseData += (char) nextCharacter; // The += operator appends the character to the end of the string
                     }
                     //************************************************************************
-                    Log.v(TAG, responseData);
+                    JSONObject jsonResponse = new JSONObject(responseData);
+                    JSONObject jsonCurrentWeather = jsonResponse.getJSONObject("currently");
+                    String currentWeather = jsonCurrentWeather.getString("summary");
+                    mWeatherLabel.setText(currentWeather);
+                    //Log.i(TAG, currentWeather);
+
                 }
                 else {
                     Log.i(TAG, "Unsuccessful Http Response Code: " + responseCode);
@@ -139,5 +171,6 @@ public class MainActivity extends ActionBarActivity {
             return "Code :" + responseCode;
         }
     }
+
 
 }

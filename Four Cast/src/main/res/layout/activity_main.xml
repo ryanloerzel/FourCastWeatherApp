@@ -11,23 +11,10 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Today's Weather:"
-        android:id="@+id/textWeatherLabel"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Medium Text"
+        android:id="@+id/textView3"
         android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:textSize="26sp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Sunny"
-        android:id="@+id/textWeatherValue"
-        android:singleLine="true"
-        android:layout_below="@+id/textWeatherLabel"
-        android:layout_alignLeft="@+id/textWeatherLabel"
-        android:layout_alignStart="@+id/textWeatherLabel"
-        android:layout_alignRight="@+id/textWeatherLabel"
-        android:layout_alignEnd="@+id/textWeatherLabel"
-        android:textSize="26sp" />
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>
