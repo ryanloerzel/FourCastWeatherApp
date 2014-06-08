@@ -45,6 +45,7 @@ public class MainActivity extends ActionBarActivity {
    protected ImageView mWeatherImage;
 
    protected String mWeather;
+   protected String mHumidity;
    protected String mWindSpeed;
    protected String mPrecipitation;
    protected String mTemperature;
@@ -95,7 +96,7 @@ public class MainActivity extends ActionBarActivity {
             Log.i(TAG, "The City is: " + mLocality);
         } catch (Exception e) {
             Log.e(TAG, "Exception caught:", e);
-            mLocality = "Somewhere out there";
+            mLocality = "Monte Tamaro, Switzerland";
             Log.i(TAG, "The City is: " + mLocality);
         }
     }
@@ -116,9 +117,9 @@ public class MainActivity extends ActionBarActivity {
         }
         else{
             Toast.makeText(this, "Current Location is unavailable", Toast.LENGTH_LONG).show();
-            //Ulaanbaatar Mongolia
-            mLat = 47.9200f;
-            mLng = 106.9200f;
+            //Monte Tamaro, Switzerland
+            mLat = 46.1039f;
+            mLng = 8.8660f;
             Log.i(TAG, "The mLat: " + mLat + " and the ln is: " + mLng);
         }
     }
@@ -145,13 +146,14 @@ public class MainActivity extends ActionBarActivity {
             try {
                 JSONObject jsonCurrentWeather = mWeatherData.getJSONObject("currently");
                 mWeather = jsonCurrentWeather.getString("icon");
-
+                Log.i(TAG, "Humidity" + jsonCurrentWeather.getInt("humidity"));
                 //Format Strings for display
                 mTemperature = Integer.toString(jsonCurrentWeather.getInt("temperature")) + " " + DEGREE + "F";
                 mWindSpeed =  Integer.toString(jsonCurrentWeather.getInt("windSpeed")) + "mph";
-                mPrecipitation = Float.toString(jsonCurrentWeather.getInt("precipProbability")) + "%";
+                mPrecipitation = Integer.toString(jsonCurrentWeather.getInt("precipProbability")) + "%";
+                mHumidity = Integer.toString(100 *(jsonCurrentWeather.getInt("humidity"))) + "%";
 
-                mHumidLabel.setText(Float.toString(jsonCurrentWeather.getInt("humidity")));
+                mHumidLabel.setText(mHumidity);
                 mPrecipLabel.setText(mPrecipitation);
                 mWindLabel.setText(mWindSpeed);
                 mTempLabel.setText(mTemperature);
