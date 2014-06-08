@@ -14,6 +14,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.http.HttpEntity;
@@ -35,20 +37,39 @@ import java.util.List;
 
 public class MainActivity extends ActionBarActivity {
 
+   protected TextView mCityLabel;
+   protected TextView mHumidLabel;
+   protected TextView mWindLabel;
+   protected TextView mPrecipLabel;
+   protected TextView mTempLabel;
+   protected ImageView mWeatherImage;
+
+   protected String mWeather;
+   protected String mWindSpeed;
+   protected String mPrecipitation;
+   protected String mTemperature;
    protected JSONObject mWeatherData;
-   protected String mWeatherSummary;
    protected String mLocality;
-   protected int mTemperature;
    private float mLat, mLng;
    public static final String TAG = MainActivity.class.getSimpleName();
    private LocationManager locationManager;
    private String provider;
+   final String DEGREE  = "\u00b0";
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mCityLabel = (TextView) findViewById(R.id.textViewCity);
+        mTempLabel = (TextView) findViewById(R.id.textViewTemp);
+        mHumidLabel = (TextView) findViewById(R.id.textViewHumidity);
+        mWindLabel = (TextView) findViewById(R.id.textViewWind);
+        mPrecipLabel = (TextView) findViewById(R.id.textViewPrecipitation);
+        mWeatherImage = (ImageView) findViewById(R.id.imageViewWeatherIcon);
+
+
 
         setLatAndLng();
         setLocality();
@@ -70,14 +91,10 @@ public class MainActivity extends ActionBarActivity {
         List<Address> addresses = null;
         try {
             addresses = gcd.getFromLocation(mLat, mLng, 1);
-        } catch (IOException e) {
-            Log.e(TAG, "Exception caught:", e);
-        }
-        if (addresses.size() > 0) {
-            mLocality = addresses.get(0).getLocality();
+            mLocality = addresses.get(0).getLocality() +", " + addresses.get(0).getAdminArea();
             Log.i(TAG, "The City is: " + mLocality);
-        }
-        else {
+        } catch (Exception e) {
+            Log.e(TAG, "Exception caught:", e);
             mLocality = "Somewhere out there";
             Log.i(TAG, "The City is: " + mLocality);
         }
@@ -95,7 +112,7 @@ public class MainActivity extends ActionBarActivity {
         if (location != null) {
             mLat =  (float)(location.getLatitude());
             mLng = (float)(location.getLongitude());
-            Log.i(TAG, "The mLat: " + mLat + " and the ln is: " + mLng);
+            Log.i(TAG, "The mLat: " + mLat + " and the mLng is: " + mLng);
         }
         else{
             Toast.makeText(this, "Current Location is unavailable", Toast.LENGTH_LONG).show();
@@ -122,21 +139,56 @@ public class MainActivity extends ActionBarActivity {
     private void updateData() {
         if(mWeatherData == null){
             /* TODO: Handle Error */
-            Log.i("In Update Data", "We have some null data " + mWeatherSummary);
+            Log.i("In Update Data", "We have some null data ");
         }
         else{
             try {
                 JSONObject jsonCurrentWeather = mWeatherData.getJSONObject("currently");
-                mWeatherSummary = jsonCurrentWeather.getString("summary");
-                mTemperature = jsonCurrentWeather.getInt("temperature");
-                Log.i("In Update Data", "The weather is: " + mWeatherSummary + " and the temperature is " + mTemperature);
+                mWeather = jsonCurrentWeather.getString("icon");
+
+                //Format Strings for display
+                mTemperature = Integer.toString(jsonCurrentWeather.getInt("temperature")) + " " + DEGREE + "F";
+                mWindSpeed =  Integer.toString(jsonCurrentWeather.getInt("windSpeed")) + "mph";
+                mPrecipitation = Float.toString(jsonCurrentWeather.getInt("precipProbability")) + "%";
+
+                mHumidLabel.setText(Float.toString(jsonCurrentWeather.getInt("humidity")));
+                mPrecipLabel.setText(mPrecipitation);
+                mWindLabel.setText(mWindSpeed);
+                mTempLabel.setText(mTemperature);
+                mCityLabel.setText(mLocality);
+
+                Log.i("In Update Data", "The weather is: " + mWeather +
+                        " and the temperature is " + Integer.toString(jsonCurrentWeather.getInt("temperature")));
+
+                if(mWeather.equals("clear-day")){
+                   mWeatherImage.setImageResource(R.drawable.sunny);
+                }
+                else if(mWeather.equals("rain")){
+                    mWeatherImage.setImageResource(R.drawable.rain);
+                }
+                else if(mWeather.equals("clear-night")){
+                    mWeatherImage.setImageResource(R.drawable.clear_night);
+                }
+                else if(mWeather.equals("snow")){
+                    mWeatherImage.setImageResource(R.drawable.snow);
+                }
+                else if(mWeather.equals("partly-cloudy-day")){
+                    mWeatherImage.setImageResource(R.drawable.partyly_cloudy);
+                }
+                else if(mWeather.equals("partly-cloudy-night")){
+                    mWeatherImage.setImageResource(R.drawable.cloudy_night);
+                }
+                else{
+                    //default image in case of unknown weather condition
+                    mWeatherImage.setImageResource(R.drawable.earth);
+                }
             } catch (JSONException e) {
                 Log.e(TAG, "Exception caught!", e);
             }
         }
     }
 
-
+    //clear-day, clear-night, rain, snow, sleet, wind, fog, cloudy, partly-cloudy-day, or partly-cloudy-night
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
