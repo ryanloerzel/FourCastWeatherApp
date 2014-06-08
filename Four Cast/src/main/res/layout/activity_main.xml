@@ -22,22 +22,24 @@
         android:layout_alignParentStart="true" />
 
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:id="@+id/imageViewWeatherIcon"
         android:focusableInTouchMode="false"
         android:layout_weight=".9"
         android:longClickable="true"
         android:cropToPadding="false"
-        android:layout_alignParentLeft="false"
+        android:src="@drawable/lightning"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_centerInParent="true" />
+        android:layout_gravity="center" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/textViewPrecipitation"
-        android:textSize="20sp"
+        android:textSize="20dp"
         android:typeface="sans"
         android:textColor="#f2e2a6"
         android:visibility="visible"
@@ -48,14 +50,15 @@
         android:text="0"
         android:layout_row="91"
         android:layout_column="1"
-        android:layout_centerVertical="true"
-        android:layout_toRightOf="@+id/textViewTempLabel" />
+        android:layout_below="@+id/textViewWind"
+        android:layout_alignLeft="@+id/textViewWind"
+        android:layout_alignStart="@+id/textViewWind" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/textViewHumidity"
-        android:textSize="20sp"
+        android:textSize="20dp"
         android:typeface="sans"
         android:textColor="#f2e2a6"
         android:visibility="visible"
@@ -66,15 +69,15 @@
         android:text="0"
         android:layout_row="91"
         android:layout_column="1"
-        android:layout_below="@+id/textViewPrecipitation"
-        android:layout_alignLeft="@+id/textViewPrecipitation"
-        android:layout_alignStart="@+id/textViewPrecipitation" />
+        android:layout_below="@+id/textViewTemp"
+        android:layout_alignLeft="@+id/textViewTemp"
+        android:layout_alignStart="@+id/textViewTemp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/textViewTemp"
-        android:textSize="20sp"
+        android:textSize="20dp"
         android:typeface="sans"
         android:textColor="#f2e2a6"
         android:visibility="visible"
@@ -86,14 +89,14 @@
         android:layout_row="91"
         android:layout_column="1"
         android:textStyle="normal"
-        android:layout_above="@+id/textViewPrecipitation"
+        android:layout_alignTop="@+id/textViewTempLabel"
         android:layout_toRightOf="@+id/textViewTempLabel" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/textViewWind"
-        android:textSize="20sp"
+        android:textSize="20dp"
         android:typeface="sans"
         android:textColor="#f2e2a6"
         android:visibility="visible"
@@ -104,7 +107,7 @@
         android:text="0"
         android:layout_row="91"
         android:layout_column="1"
-        android:layout_below="@+id/textViewHumidity"
+        android:layout_alignTop="@+id/textViewWindLabel"
         android:layout_alignLeft="@+id/textViewHumidity"
         android:layout_alignStart="@+id/textViewHumidity" />
 
@@ -112,7 +115,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/textViewCity"
-        android:textSize="25sp"
+        android:textSize="25dp"
         android:layout_alignWithParentIfMissing="false"
         android:typeface="sans"
         android:textColor="#f2e2a6"
@@ -126,7 +129,6 @@
         android:textStyle="bold|italic"
         android:layout_alignBottom="@+id/imageViewBackground"
         android:paddingBottom="20dp"
-        android:text="City, State"
         android:textAlignment="center"
         android:paddingStart="10dp"
         android:layout_centerHorizontal="true"
@@ -140,16 +142,18 @@
         android:text="Temperature:   "
         android:id="@+id/textViewTempLabel"
         android:textColor="#ffffff"
-        android:textSize="20sp"
+        android:textSize="20dp"
         android:shadowColor="#214e6d"
         android:shadowRadius="10"
         android:singleLine="true"
         android:textStyle="italic"
         android:textIsSelectable="false"
-        android:layout_alignTop="@+id/textViewTemp"
-        android:layout_alignLeft="@+id/textViewCity"
-        android:layout_alignStart="@+id/textViewCity"
-        android:paddingLeft="10dp" />
+        android:visibility="visible"
+        android:paddingLeft="40dp"
+        android:layout_alignTop="@+id/imageViewBackground"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="207dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -157,16 +161,16 @@
         android:text="Wind Speed:"
         android:id="@+id/textViewWindLabel"
         android:textColor="#ffffff"
-        android:textSize="20sp"
+        android:textSize="20dp"
         android:shadowColor="#214e6d"
         android:shadowRadius="10"
         android:singleLine="true"
         android:textStyle="italic"
         android:textIsSelectable="false"
-        android:layout_below="@+id/textViewHumidityLabel"
-        android:layout_alignLeft="@+id/textViewHumidityLabel"
-        android:layout_alignStart="@+id/textViewHumidityLabel"
-        android:paddingLeft="10dp" />
+        android:paddingLeft="40dp"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/textViewHumidity"
+        android:layout_alignParentLeft="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -174,16 +178,16 @@
         android:text="Humidity:"
         android:id="@+id/textViewHumidityLabel"
         android:textColor="#ffffff"
-        android:textSize="20sp"
+        android:textSize="20dp"
         android:shadowColor="#214e6d"
         android:shadowRadius="10"
         android:singleLine="true"
         android:textStyle="italic"
         android:textIsSelectable="false"
-        android:layout_above="@+id/textViewWind"
-        android:layout_alignLeft="@+id/textViewPrecipLabel"
-        android:layout_alignStart="@+id/textViewPrecipLabel"
-        android:paddingLeft="10dp" />
+        android:paddingLeft="40dp"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/textViewWind"
+        android:layout_alignParentLeft="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -191,15 +195,15 @@
         android:text="Precipitation:"
         android:id="@+id/textViewPrecipLabel"
         android:textColor="#ffffff"
-        android:textSize="20sp"
+        android:textSize="20dp"
         android:shadowColor="#214e6d"
         android:shadowRadius="10"
         android:singleLine="false"
         android:textStyle="italic"
         android:textIsSelectable="false"
-        android:layout_above="@+id/textViewHumidity"
-        android:layout_alignLeft="@+id/textViewTempLabel"
-        android:layout_alignStart="@+id/textViewTempLabel"
-        android:paddingLeft="10dp" />
+        android:paddingLeft="40dp"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/textViewTemp"
+        android:layout_alignParentLeft="true" />
 
 </RelativeLayout>
