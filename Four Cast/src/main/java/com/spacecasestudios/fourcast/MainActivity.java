@@ -146,12 +146,12 @@ public class MainActivity extends ActionBarActivity {
             try {
                 JSONObject jsonCurrentWeather = mWeatherData.getJSONObject("currently");
                 mWeather = jsonCurrentWeather.getString("icon");
-                Log.i(TAG, "Humidity" + jsonCurrentWeather.getInt("humidity"));
+                Log.i(TAG, "Humidity" + jsonCurrentWeather.getDouble("humidity"));
                 //Format Strings for display
                 mTemperature = Integer.toString(jsonCurrentWeather.getInt("temperature")) + " " + DEGREE + "F";
                 mWindSpeed =  Integer.toString(jsonCurrentWeather.getInt("windSpeed")) + "mph";
-                mPrecipitation = Integer.toString(jsonCurrentWeather.getInt("precipProbability")) + "%";
-                mHumidity = Integer.toString(100 *(jsonCurrentWeather.getInt("humidity"))) + "%";
+                mPrecipitation = Integer.toString((int)(100 * (jsonCurrentWeather.getDouble("precipProbability")))) + "%";
+                mHumidity = Integer.toString((int)(100 * (jsonCurrentWeather.getDouble("humidity")))) + "%";
 
                 mHumidLabel.setText(mHumidity);
                 mPrecipLabel.setText(mPrecipitation);
